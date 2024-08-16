@@ -1,0 +1,153 @@
+=========================Html page==============================
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #ADD8E6; /* Light blue background */
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        input[type="text"], input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .button-group input {
+            width: calc(50% - 10px); /* Adjust width to fit in flex container */
+        }
+        h1 {
+            text-align: center;
+        }
+        #result {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function calculate(operation) {
+            var num1 = parseFloat(document.querySelector('input[name="num1"]').value);
+            var num2 = parseFloat(document.querySelector('input[name="num2"]').value);
+            var result = 0;
+            var errorMessage = '';
+
+            if (isNaN(num1) || isNaN(num2)) {
+                errorMessage = 'Please enter valid numbers.';
+            } else {
+                switch(operation) {
+                    case 'Add':
+                        result = num1 + num2;
+                        break;
+                    case 'Subtract':
+                        result = num1 - num2;
+                        break;
+                    case 'Multiply':
+                        result = num1 * num2;
+                        break;
+                    case 'Divide':
+                        if (num2 === 0) {
+                            errorMessage = 'Cannot divide by zero.';
+                        } else {
+                            result = num1 / num2;
+                        }
+                        break;
+                    default:
+                        errorMessage = 'Invalid operation.';
+                }
+            }
+
+            document.getElementById('result').innerText = errorMessage ? errorMessage : 'Result: ' + result;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Calculator</h1>
+        <input type="text" name="num1" placeholder="Enter first number" required />
+        <input type="text" name="num2" placeholder="Enter second number" required />
+        <div class="button-group">
+            <input type="button" value="Add" onclick="calculate('Add')" />
+            <input type="button" value="Subtract" onclick="calculate('Subtract')" />
+            <input type="button" value="Multiply" onclick="calculate('Multiply')" />
+            <input type="button" value="Divide" onclick="calculate('Divide')" />
+        </div>
+        <div id="result">
+            <h2>Result:</h2>
+            <p>Please enter values and select an operation.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+=========================Java Servlet==============================
+
+java
+
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/calc")
+public class NewServlet extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+
+        try {
+            String operation = request.getParameter("operation");
+            double num1 = Double.parseDouble(request.getParameter("num1"));
+            double num2 = Double.parseDouble(request.getParameter("num2"));
+            double result = 0;
+            String resultMessage = "";
+
+            switch (operation) {
+                case "Add" -> result = num1 + num2;
+                case "Subtract" -> result = num1 - num2;
+                case "Multiply" -> result = num1 * num2;
+                case "Divide" -> {
+                    if (num2 != 0) {
+                        result = num1 / num2;
+                    } else {
+                        resultMessage = "Cannot divide by zero";
+                        break;
+                    }
+                }
+                default -> resultMessage = "Invalid operation";
+            }
+
+            if (resultMessage.isEmpty()) {
+                resultMessage = String.valueOf(result);
+            }
+
+            response.getWriter().write(resultMessage);
+
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Invalid number format");
+        } catch (IOException e) {
+
